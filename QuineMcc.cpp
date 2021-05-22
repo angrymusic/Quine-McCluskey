@@ -53,9 +53,9 @@ class Minterm
 {
 public:
 	int dorm = -1;//dontcare 0 minterm 1
-	int check = 0;//¼±ÅÃ‰ç¾ú´ÂÁö ¾Æ´ÑÁö
-	int numofone = 0;//1ÀÇ °¹¼ö
-	char value[100] = "";//°ª
+	int check = 0;//ì„ íƒÂ‰ç°é§­ì© ì•„ë‹Œì§€
+	int numofone = 0;//1ì˜ ê°¯ìˆ˜
+	char value[100] = "";//ê°’
 	int countcover = 0;
 	Tminterm* head = NULL;
 	Tminterm* tail = NULL;
@@ -139,22 +139,22 @@ int main()
 	Minterm* essentialtail = NULL;
 
 	int bitnum;
-	ifstream input;//ÀĞÀ» ÆÄÀÏ ¼±¾ğ
+	ifstream input;//ì½ì„ íŒŒì¼ ì„ ì–¸
 	int i = 0;
-	input.open("input_minterm.txt");//ÆÄÀÏ ¿­±â
-	if (input.is_open())//¿­¿´À» °æ¿ì
+	input.open("input_minterm.txt");//íŒŒì¼ ì—´ê¸°
+	if (input.is_open())//ì—´ì˜€ì„ ê²½ìš°
 	{
 		newminterm = new Minterm;
 		head = newminterm;
 		tail = newminterm;
 		newminterm->next = NULL;
-		input.getline(newminterm->value, 100);//ÇÑÁÙ¾¿ ¹Ş±â
+		input.getline(newminterm->value, 100);//í•œì¤„ì”© ë°›ê¸°
 
-		while (!input.eof())//ÆÄÀÏÀ» ³¡±îÁö ÀĞ±â
+		while (!input.eof())//íŒŒì¼ì„ ëê¹Œì§€ ì½ê¸°
 		{
 			newminterm = new Minterm;
-			input.getline(newminterm->value, 100);//ÇÑÁÙ¾¿ ¹Ş±â
-			newminterm->numofone = countone(newminterm->value);//1°¹¼ö¹Ş±â
+			input.getline(newminterm->value, 100);//í•œì¤„ì”© ë°›ê¸°
+			newminterm->numofone = countone(newminterm->value);//1ê°¯ìˆ˜ë°›ê¸°
 			tail->next = newminterm;
 			tail = newminterm;
 			cutline = tail;
@@ -162,20 +162,20 @@ int main()
 		}
 	}
 
-	else//¾È¿­·ÈÀ» °æ¿ì
+	else//ì•ˆì—´ë ¸ì„ ê²½ìš°
 	{
 		cout << "file is not open";
 	}
 	bitnum = atoi(head->value);
 
 	cur = head;
-	while (cur != NULL)//ÀÓ½Ã °á°ú°ª Ãâ·Â
+	while (cur != NULL)//ì„ì‹œ ê²°ê³¼ê°’ ì¶œë ¥
 	{
 		cout << cur->value << endl;
 		cur = cur->next;
 	}
 	cur = head;
-	while (cur != NULL)// d ¶û m ±¸º°ÇØ¼­ dorm°ª ¼öÁ¤ ÇØÁÖ±â
+	while (cur != NULL)// d ë‘ m êµ¬ë³„í•´ì„œ dormê°’ ìˆ˜ì • í•´ì£¼ê¸°
 	{
 		if (cur->value[0] == 'd')
 		{
@@ -190,7 +190,7 @@ int main()
 
 	cur = head->next;
 
-	while (cur != NULL)// d ¶û mÀ» –A ¼ø¼ö value°ªÀ¸·Î ¼öÁ¤ ÇØÁÖ±â
+	while (cur != NULL)// d ë‘ mì„ Â–A ìˆœìˆ˜ valueê°’ìœ¼ë¡œ ìˆ˜ì • í•´ì£¼ê¸°
 	{
 		char temp[100];
 		int t = 0;
@@ -204,7 +204,7 @@ int main()
 		cur = cur->next;
 	}
 	cur = head;
-	while (cur != NULL)//ÀÓ½Ã °á°ú°ª Ãâ·Â
+	while (cur != NULL)//ì„ì‹œ ê²°ê³¼ê°’ ì¶œë ¥
 	{
 		cout << cur->value << endl;
 		cur = cur->next;
@@ -215,7 +215,7 @@ int main()
 	while (standard != NULL)
 	{
 		cur = standard->next;
-		while (cur != cutline->next)//standard¶û ºñ±³ÇÏ±â
+		while (cur != cutline->next)//standardë‘ ë¹„êµí•˜ê¸°
 		{
 			int countcheck = 0;
 			int differentpoint = 0;
@@ -231,14 +231,14 @@ int main()
 					differentpoint = i;
 				}
 			}
-			if (countcheck == bitnum - 1)//ÇÑ bit¸¸ ´Ù¸¥ °æ¿ì
+			if (countcheck == bitnum - 1)//í•œ bitë§Œ ë‹¤ë¥¸ ê²½ìš°
 			{
 				standard->check = 1;
 				cur->check = 1;
 				newminterm = new Minterm;
 				strcpy_s(newminterm->value, standard->value);
 				newminterm->value[differentpoint] = '_';
-				tail->next = newminterm;//cutlineÀÇ nextºÎÅÍ°¡ ¿¬»ê°úÁ¤ÀÇ ¹ÎÅÒµéÀÎ°ÍÀÓ.
+				tail->next = newminterm;//cutlineì˜ nextë¶€í„°ê°€ ì—°ì‚°ê³¼ì •ì˜ ë¯¼í…€ë“¤ì¸ê²ƒì„.
 				tail = newminterm;
 			}
 			cur = cur->next;
@@ -247,7 +247,7 @@ int main()
 		if (standard == cutline)
 		{
 			standard = standard->next;
-			//check ¾ÈµÈ°Å pls¿¡ ³Ö±â
+			//check ì•ˆëœê±° plsì— ë„£ê¸°
 
 			cutline = tail;
 		}
@@ -273,7 +273,7 @@ int main()
 		pcur = pcur->next;
 	}
 
-	standard = plshead;//Áßº¹ pls»èÁ¦
+	standard = plshead;//ì¤‘ë³µ plsì‚­ì œ
 	Minterm* mintermkiller;
 	while (standard != NULL)
 	{
@@ -317,7 +317,7 @@ int main()
 		standard = standard->next;
 	}
 
-	plscur = plshead;//plsÀÓ½ÃÃâ·Â
+	plscur = plshead;//plsì„ì‹œì¶œë ¥
 	while (plscur != NULL)
 	{
 		cout << plscur->value << endl;
@@ -325,7 +325,7 @@ int main()
 	}
 	cout << "-----------------------" << endl;
 	Tlist tlist;
-	cur = head;//tlist¿¡ true¹ÎÅÒµé ³Ö±â
+	cur = head;//tlistì— trueë¯¼í…€ë“¤ ë„£ê¸°
 	while (1)
 	{
 		if (cur->dorm == 1)
@@ -340,7 +340,7 @@ int main()
 	}
 
 	tlist.tlistcur = tlist.tlisthead;
-	while (tlist.tlistcur != NULL)//pls°¡ Ä¿¹öÇÏ´Â ¼ö Ã¼Å©
+	while (tlist.tlistcur != NULL)//plsê°€ ì»¤ë²„í•˜ëŠ” ìˆ˜ ì²´í¬
 	{
 		plscur = plshead;
 		while (plscur != NULL)
@@ -373,9 +373,9 @@ int main()
 	Tminterm* prevplscur2;
 	Minterm* plscur3;
 	tlist.tlistcur = tlist.tlisthead;
-	while (tlist.tlistcur != NULL)//ÇÏ³ª¸¸ Ä¿¹öµÇ´Â °æ¿ì°¡ ÀÖ´Ù¸é ±× pls essentialpls
+	while (tlist.tlistcur != NULL)//í•˜ë‚˜ë§Œ ì»¤ë²„ë˜ëŠ” ê²½ìš°ê°€ ìˆë‹¤ë©´ ê·¸ pls essentialpls
 	{
-		if (tlist.tlistcur->coverd == 1)//ÇÏ³ª¸¸ Ä¿¹öµÇ´Â °Å Ã£°í
+		if (tlist.tlistcur->coverd == 1)//í•˜ë‚˜ë§Œ ì»¤ë²„ë˜ëŠ” ê±° ì°¾ê³ 
 		{
 			plscur = plshead;
 			while (plscur != NULL)
@@ -400,7 +400,7 @@ int main()
 						essentialtail = newminterm;
 					}
 					plscur->cur = plscur->head;
-					while (plscur->cur != NULL)//essential pls°¡ coverÇÏ´Â mintermµé Ã¼Å©
+					while (plscur->cur != NULL)//essential plsê°€ coverí•˜ëŠ” mintermë“¤ ì²´í¬
 					{
 						listcur2 = tlist.tlisthead;
 						while (listcur2 != NULL)
@@ -413,7 +413,7 @@ int main()
 						}
 						
 
-						//pls¿¡¼­ coveredminterm countcover»©ÁÖ±â
+						//plsì—ì„œ coveredminterm countcoverë¹¼ì£¼ê¸°
 						strcpy_s(deletemin, plscur->cur->tvalue);
 						plscur3=plshead;
 						while (plscur3 != NULL)
@@ -432,7 +432,7 @@ int main()
 	}
 
 	Minterm* bigpls;
-	while (tlist.countchecked())//minterm µéÀÌ ÀüºÎ Ã¼Å©µÉ ¶§±îÁö
+	while (tlist.countchecked())//minterm ë“¤ì´ ì „ë¶€ ì²´í¬ë  ë•Œê¹Œì§€
 	{
 		bigpls = plshead;
 		plscur = plshead;
@@ -444,7 +444,7 @@ int main()
 			}
 			plscur = plscur->next;
 		}
-		newminterm = new Minterm;//°¡Àå Ä¿¹ö ¸¹ÀÌ ÇÏ´Â pls ¿¡¼¾¼È·Î º¸³»±â
+		newminterm = new Minterm;//ê°€ì¥ ì»¤ë²„ ë§ì´ í•˜ëŠ” pls ì—ì„¼ì…œë¡œ ë³´ë‚´ê¸°
 		strcpy_s(newminterm->value, bigpls->value);
 		if (essentialhead == NULL)
 		{
@@ -469,7 +469,7 @@ int main()
 				}
 				tlist.tlistcur = tlist.tlistcur->next;
 			}
-			//pls¿¡¼­ coveredminterm countcover»©ÁÖ±â
+			//plsì—ì„œ coveredminterm countcoverë¹¼ì£¼ê¸°
 			strcpy_s(deletemin, bigpls->cur->tvalue);
 			plscur3 = plshead;
 			while (plscur3 != NULL)
@@ -486,8 +486,8 @@ finish:
 
 
 	Minterm* essentialprecur;
-	//essential Áßº¹ »èÁ¦
-	standard = essentialhead;//Áßº¹ pls»èÁ¦
+	//essential ì¤‘ë³µ ì‚­ì œ
+	standard = essentialhead;//ì¤‘ë³µ plsì‚­ì œ
 	Minterm* essentialmintermkiller;
 	while (standard != NULL)
 	{
@@ -532,7 +532,7 @@ finish:
 	}
 
 
-	essentialcur = essentialhead;//essentialplsÀÓ½ÃÃâ·Â
+	essentialcur = essentialhead;//essentialplsì„ì‹œì¶œë ¥
 	while (essentialcur != NULL)
 	{
 		cout << essentialcur->value << endl;
@@ -579,9 +579,9 @@ finish:
 	countnot = 2 * countnot;
 	cost = countnot + countand + countor;
 	cout << "Cost (# of transistors): " << cost << endl;
-	//result.txt ÀúÀåÇÏ±â
+	//result.txt ì €ì¥í•˜ê¸°
 	ofstream fout("result.txt");
-	essentialcur = essentialhead;//essentialplsÀÓ½ÃÃâ·Â
+	essentialcur = essentialhead;//essentialplsì„ì‹œì¶œë ¥
 	while (essentialcur != NULL)
 	{
 		fout << essentialcur->value << endl;
@@ -592,11 +592,11 @@ finish:
 
 
 
-	/* ¾ÕÀ¸·Î ÇØ¾ß ÇÒ °Í
+	/* ì•ìœ¼ë¡œ í•´ì•¼ í•  ê²ƒ
 
-	* minterm µéÀÌ¶û ¿¬»êÇØ¼­ essential minterm  Ã£±â
-	* ÃÖÁ¾ °á°ú°ª Æ®·»Áö½ºÅÍ °¹¼ö ¼¼±â
-	* result.txt¿¡ °á°ú°ª ÀÔ·ÂÇÏ±â
+	* minterm ë“¤ì´ë‘ ì—°ì‚°í•´ì„œ essential minterm  ì°¾ê¸°
+	* ìµœì¢… ê²°ê³¼ê°’ íŠ¸ë Œì§€ìŠ¤í„° ê°¯ìˆ˜ ì„¸ê¸°
+	* result.txtì— ê²°ê³¼ê°’ ì…ë ¥í•˜ê¸°
 	*/
 
 }

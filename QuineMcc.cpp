@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+
 using namespace std;
 
 class Tminterm
@@ -53,8 +54,7 @@ class Minterm
 {
 public:
 	int dorm = -1;//dontcare 0 minterm 1
-	int check = 0;//선택獰駭쩝 아닌지
-	int numofone = 0;//1의 갯수
+	int check = 0;//선택됬었는지 아닌지
 	char value[100] = "";//값
 	int countcover = 0;
 	Tminterm* head = NULL;
@@ -120,10 +120,9 @@ public:
 	}
 };
 
-int countone(char arr[]);
-
 int main()
 {
+	//_CrtSetBreakAlloc(199);
 	Minterm* head = NULL;
 	Minterm* tail = NULL;
 	Minterm* cur = NULL;
@@ -154,7 +153,6 @@ int main()
 		{
 			newminterm = new Minterm;
 			input.getline(newminterm->value, 100);//한줄씩 받기
-			newminterm->numofone = countone(newminterm->value);//1갯수받기
 			tail->next = newminterm;
 			tail = newminterm;
 			cutline = tail;
@@ -190,7 +188,7 @@ int main()
 
 	cur = head->next;
 
-	while (cur != NULL)// d 랑 m을 A 순수 value값으로 수정 해주기
+	while (cur != NULL)// d 랑 m을 뺸 순수 value값으로 수정 해주기
 	{
 		char temp[100];
 		int t = 0;
@@ -209,7 +207,7 @@ int main()
 		cout << cur->value << endl;
 		cur = cur->next;
 	}
-	cout << "------------------------------------" << endl;
+	cout << "------------------------------------pls" << endl;
 
 	Minterm* standard = head->next;
 	while (standard != NULL)
@@ -220,7 +218,7 @@ int main()
 			int countcheck = 0;
 			int differentpoint = 0;
 
-			for (int i = 0; i < bitnum; i++)
+			for (int i = 0; i < bitnum; i++)//각자리비교해보기
 			{
 				if (cur->value[i] == standard->value[i])
 				{
@@ -323,7 +321,7 @@ int main()
 		cout << plscur->value << endl;
 		plscur = plscur->next;
 	}
-	cout << "-----------------------" << endl;
+	cout << "--------------------------essential pls" << endl;
 	Tlist tlist;
 	cur = head;//tlist에 true민텀들 넣기
 	while (1)
@@ -352,7 +350,7 @@ int main()
 					if (i == bitnum - 1)
 					{
 						tlist.tlistcur->coverd++;
-						plscur->addtmin(tlist.tlistcur->tvalue);
+						plscur->addtmin(tlist.tlistcur->tvalue);//pls에 cover하는 minterm넣어주기
 						plscur->countcover++;
 					}
 				}
@@ -380,7 +378,7 @@ int main()
 			plscur = plshead;
 			while (plscur != NULL)
 			{
-				if (tlist.tlisthead == NULL)
+				if (tlist.tlisthead == NULL)//만약 essential pl로 trueminterm들이 전부 커버되면 끝
 				{
 					goto finish;
 				}
@@ -413,7 +411,7 @@ int main()
 						}
 						
 
-						//pls에서 coveredminterm countcover빼주기
+						//pls에서 커버된 minterm들 체크해주기
 						strcpy_s(deletemin, plscur->cur->tvalue);
 						plscur3=plshead;
 						while (plscur3 != NULL)
@@ -459,7 +457,7 @@ int main()
 		bigpls->cur = bigpls->head;
 		while (bigpls->cur != NULL)
 		{
-			tlist.tlistcur = tlist.tlisthead;
+			tlist.tlistcur = tlist.tlisthead;//trueminterm들 커버된 minterm체크해주기
 			while (tlist.tlistcur != NULL)
 			{
 				if (strcmp(bigpls->cur->tvalue, tlist.tlistcur->tvalue)==0)
@@ -469,7 +467,7 @@ int main()
 				}
 				tlist.tlistcur = tlist.tlistcur->next;
 			}
-			//pls에서 coveredminterm countcover빼주기
+			//pls에서 커버된 minterm들 체크해주기
 			strcpy_s(deletemin, bigpls->cur->tvalue);
 			plscur3 = plshead;
 			while (plscur3 != NULL)
@@ -590,25 +588,56 @@ finish:
 	fout << endl;
 	fout << "Cost (# of transistors): " << cost << endl;
 
-
-
-	/* 앞으로 해야 할 것
-
-	* minterm 들이랑 연산해서 essential minterm  찾기
-	* 최종 결과값 트렌지스터 갯수 세기
-	* result.txt에 결과값 입력하기
-	*/
-
-}
-int countone(char arr[])
-{
-	int count = 0;
-	for (int i = 0; i < strlen(arr); i++)
+	//동적할당 해제
+	Tminterm* nextdeltminterm;
+	Tminterm* deltminterm;
+	deltminterm = tlist.tlisthead;
+	while (deltminterm != NULL)
 	{
-		if (arr[i] == '1')
-		{
-			count++;
-		}
+		nextdeltminterm = deltminterm->next;
+		delete(deltminterm);
+		deltminterm = nextdeltminterm;
 	}
-	return count;
+
+	Minterm* nextdelminterm=NULL;
+	Minterm* delminterm=head;
+	while (delminterm != NULL)
+	{
+		nextdelminterm = delminterm->next;
+		delete(delminterm);
+		delminterm = nextdelminterm;
+	}
+
+	plscur = plshead;
+	while (plscur != NULL)
+	{
+		nextdeltminterm=NULL;
+		deltminterm = plscur->head;
+		while (delminterm != NULL)
+		{
+			nextdeltminterm = deltminterm->next;
+			delete(deltminterm);
+			deltminterm = nextdeltminterm;
+		}
+		plscur = plscur->next;
+	}
+	
+	nextdelminterm = NULL;
+	delminterm = plshead;
+	while (delminterm != NULL)
+	{
+		nextdelminterm = delminterm->next;
+		delete(delminterm);
+		delminterm = nextdelminterm;
+	}
+
+	nextdelminterm = NULL;
+	delminterm = essentialhead;
+	while (delminterm != NULL)
+	{
+		nextdelminterm = delminterm->next;
+		delete(delminterm);
+		delminterm = nextdelminterm;
+	}
+	
 }

@@ -122,7 +122,6 @@ public:
 
 int main()
 {
-	//_CrtSetBreakAlloc(199);
 	Minterm* head = NULL;
 	Minterm* tail = NULL;
 	Minterm* cur = NULL;
@@ -144,7 +143,7 @@ int main()
 	if (input.is_open())//열였을 경우
 	{
 		newminterm = new Minterm;
-		head = newminterm;
+		head = newminterm;//첫 노드는 bitnum
 		tail = newminterm;
 		newminterm->next = NULL;
 		input.getline(newminterm->value, 100);//한줄씩 받기
@@ -163,6 +162,7 @@ int main()
 	else//안열렸을 경우
 	{
 		cout << "file is not open";
+		return 0;
 	}
 	bitnum = atoi(head->value);
 
@@ -183,13 +183,7 @@ int main()
 		{
 			cur->dorm = 1;
 		}
-		cur = cur->next;
-	}
-
-	cur = head->next;
-
-	while (cur != NULL)// d 랑 m을 뺸 순수 value값으로 수정 해주기
-	{
+		// d 랑 m을 뺸 순수 value값으로 수정 해주기
 		char temp[100];
 		int t = 0;
 		for (int i = 2; i < bitnum + 2; i++)
@@ -201,6 +195,7 @@ int main()
 		cur->value[bitnum] = '\0';
 		cur = cur->next;
 	}
+
 	cur = head;
 	while (cur != NULL)//임시 결과값 출력
 	{
@@ -235,7 +230,7 @@ int main()
 				cur->check = 1;
 				newminterm = new Minterm;
 				strcpy_s(newminterm->value, standard->value);
-				newminterm->value[differentpoint] = '_';
+				newminterm->value[differentpoint] = '-';
 				tail->next = newminterm;//cutline의 next부터가 연산과정의 민텀들인것임.
 				tail = newminterm;
 			}
@@ -245,13 +240,11 @@ int main()
 		if (standard == cutline)
 		{
 			standard = standard->next;
-			//check 안된거 pls에 넣기
-
 			cutline = tail;
 		}
 	}
 	Minterm* pcur = head->next;
-	while (pcur != cutline->next)
+	while (pcur != NULL)
 	{
 		if (pcur->check == 0)
 		{
@@ -345,7 +338,7 @@ int main()
 		{
 			for (int i = 0; i < bitnum; i++)
 			{
-				if ((plscur->value[i] == '_') || (plscur->value[i] == tlist.tlistcur->tvalue[i]))
+				if ((plscur->value[i] == '-') || (plscur->value[i] == tlist.tlistcur->tvalue[i]))
 				{
 					if (i == bitnum - 1)
 					{
@@ -434,7 +427,7 @@ int main()
 	{
 		bigpls = plshead;
 		plscur = plshead;
-		while (plscur != NULL)
+		while (plscur != NULL)//남은 minterm들중 가장 많이 커버하는 pls 선택
 		{
 			if (plscur->covercounter() > bigpls->covercounter())
 			{
@@ -481,8 +474,6 @@ int main()
 	
 
 finish:
-
-
 	Minterm* essentialprecur;
 	//essential 중복 삭제
 	standard = essentialhead;//중복 pls삭제
@@ -529,7 +520,6 @@ finish:
 		standard = standard->next;
 	}
 
-
 	essentialcur = essentialhead;//essentialpls임시출력
 	while (essentialcur != NULL)
 	{
@@ -559,12 +549,18 @@ finish:
 				countandinput++;
 			}
 		}
-		countand += countandinput * 2 + 2;
+		if (countandinput > 1)
+		{
+			countand += countandinput * 2 + 2;//n-input and gate = 2n+2 
+		}
 
 		countor++;
 		essentialcur = essentialcur->next;
 	}
-	countor = countor * 2 + 2;
+	if (countor > 1)//하나인 경우 or gate는 없다.
+	{
+		countor = countor * 2 + 2;//n-input or gate = 2n+2
+	}
 	int j = 0;
 
 	for (int i = 0; i < bitnum; i++)
@@ -574,7 +570,7 @@ finish:
 			countnot++;
 		}
 	}
-	countnot = 2 * countnot;
+	countnot = 2 * countnot;//not gate = 2n
 	cost = countnot + countand + countor;
 	cout << "Cost (# of transistors): " << cost << endl;
 	//result.txt 저장하기

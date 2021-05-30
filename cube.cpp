@@ -205,7 +205,10 @@ public:
 	char product[100];
 	char location[100];
 	char time[100];
-	int value;
+	int value = 0;
+	Data* xtail = this;
+	Data* ytail = this;
+	Data* ztail = this;
 
 	Data* nextproduct = NULL;
 	Data* prevproduct = NULL;
@@ -224,12 +227,158 @@ public:
 	Data* headtime = NULL;
 	Data* tailtime = NULL;
 	Data* newdata = NULL;
-	void newcube(Root time,Root location, Root product)
+	Data* standard = NULL;
+	Data* curx = NULL;
+	Data* cury = NULL;
+	Data* curz = NULL;
+	Data* curyz = NULL;
+	Data* curxy = NULL;
+	void newcube(Root time, Root location, Root product)
 	{
 		//빈 큐브 만들기(0으로 초기화)
+		for (int i = 0; i < product.root->nChild; i++)//x축 만들기
+		{
+			for (int j = 0; j < product.root->pChild[i]->nChild; j++)
+			{
+				if (standard == NULL)
+				{
+					newdata = new Data;
+					strcpy_s(newdata->product, product.root->pChild[0]->pChild[0]->name);
+					strcpy_s(newdata->location, location.root->pChild[0]->pChild[0]->name);
+					strcpy_s(newdata->time, time.root->pChild[0]->pChild[0]->name);
+					standard = newdata;
+					taillocation = standard;
+					tailproduct = standard;
+					tailtime = standard;
+				}
+				else
+				{
+					newdata = new Data;
+					strcpy_s(newdata->product, product.root->pChild[i]->pChild[j]->name);
+					strcpy_s(newdata->location, location.root->pChild[0]->pChild[0]->name);
+					tailproduct->nextproduct = newdata;
+					newdata->prevproduct = tailproduct;
+					tailproduct = newdata;
+				}
+				
+			}
+		}
+		for (int k = 0; k < location.root->nChild; k++)//y축 만들기
+		{
+			for (int l = 0; l < location.root->pChild[k]->nChild; l++)
+			{
+				if (k == 0 && l == 0)
+				{
+					strcpy_s(standard->location, location.root->pChild[k]->pChild[l]->name);
+					continue;
+				}
+				newdata = new Data;
+				strcpy_s(newdata->location, location.root->pChild[k]->pChild[l]->name);
+				strcpy_s(newdata->product, product.root->pChild[0]->pChild[0]->name);
+				strcpy_s(newdata->time, time.root->pChild[0]->pChild[0]->name);
+				taillocation->nextlocation = newdata;
+				newdata->prevlocation = taillocation;
+				taillocation = newdata;
+			}
+		}
+		//xy면 만들기
 		
+		cury = standard->nextlocation;
+		while (cury != NULL)
+		{
+			curx = standard->nextproduct;
+			while (curx != NULL)
+			{
+				newdata = new Data;
+				strcpy_s(newdata->location, cury->location);
+				strcpy_s(newdata->product, curx->product);
+				strcpy_s(newdata->time, time.root->pChild[0]->pChild[0]->name);
+				curx->ytail->nextlocation = newdata;
+				newdata->prevlocation = curx;
+				curx->ytail = newdata;
+				cury->xtail->nextproduct = newdata;
+				newdata->prevproduct = cury;
+				cury->xtail = newdata;
 
+				curx = curx->nextproduct;
+			}
+			cury = cury->nextlocation;
+		}
+		for (int k = 0; k < time.root->nChild; k++)//z축 만들기
+		{
+			for (int l = 0; l < time.root->pChild[k]->nChild; l++)
+			{
+				if (k == 0 && l == 0)
+				{
+					continue;
+				}
+				newdata = new Data;
+				strcpy_s(newdata->time, time.root->pChild[k]->pChild[l]->name);
+				strcpy_s(newdata->location, location.root->pChild[0]->pChild[0]->name);
+				tailtime->nexttime = newdata;
+				newdata->prevtime = tailtime;
+				tailtime = newdata;
+			}
+		}
 
+		//cube 생성
+		curx = standard;
+		while (curx != NULL)
+		{
+			cury = standard;
+			curxy = curx;
+			while (cury != NULL)
+			{
+				curz = standard->nexttime;
+				curyz = cury->nexttime;
+				while (curx != NULL)
+				{
+					if (curx == standard && cury == standard)
+					{
+						continue;
+					}
+					if (curx == standard)//yz면
+					{
+						newdata = new Data;
+						strcpy_s(newdata->location, cury->location);
+						strcpy_s(newdata->product, curx->product);
+						strcpy_s(newdata->time, curz->time);
+						curz->ytail->nextlocation = newdata;
+						newdata->prevlocation = curz->ytail;
+						curz->ytail = newdata;
+						cury->ztail->nexttime = newdata;
+						newdata->prevtime = cury->ztail;
+						cury->ztail = newdata;
+						continue;
+					}
+					newdata = new Data;
+					strcpy_s(newdata->location, cury->location);
+					strcpy_s(newdata->product, curx->product);
+					strcpy_s(newdata->time, curz->time);
+					curz->ytail->nextlocation = newdata;
+					newdata->prevlocation = curz->ytail;
+					curz->ytail = newdata;
+					cury->ztail->nexttime = newdata;
+					newdata->prevtime = cury->ztail;
+					cury->ztail = newdata;
+					//tailx 연결해줘야함
+					curyz->xtail->nextproduct = newdata;
+					newdata->prevproduct = curyz->xtail;
+					curyz->xtail = newdata;
+					//tailz 연결
+					curxy->ztail->nexttime = newdata;
+					newdata->prevtime = curxy->ztail;
+					curxy->ztail = newdata;
+					////////////////
+					curyz = curyz->nexttime;
+					curx = curx->nexttime;
+				}
+
+				curxy = curxy->nextlocation;
+				cury = cury->nextlocation;
+			}
+			curx = curx->nextproduct;
+		}
 
 
 		//sales보고 채우기

@@ -256,6 +256,7 @@ public:
 					newdata = new Data;
 					strcpy_s(newdata->product, product.root->pChild[i]->pChild[j]->name);
 					strcpy_s(newdata->location, location.root->pChild[0]->pChild[0]->name);
+					strcpy_s(newdata->time, time.root->pChild[0]->pChild[0]->name);
 					tailproduct->nextproduct = newdata;
 					newdata->prevproduct = tailproduct;
 					tailproduct = newdata;
@@ -315,6 +316,7 @@ public:
 				newdata = new Data;
 				strcpy_s(newdata->time, time.root->pChild[k]->pChild[l]->name);
 				strcpy_s(newdata->location, location.root->pChild[0]->pChild[0]->name);
+				strcpy_s(newdata->product, product.root->pChild[0]->pChild[0]->name);
 				tailtime->nexttime = newdata;
 				newdata->prevtime = tailtime;
 				tailtime = newdata;
@@ -331,10 +333,11 @@ public:
 			{
 				curz = standard->nexttime;
 				curyz = cury->nexttime;
-				while (curx != NULL)
+				while (curz != NULL)
 				{
 					if (curx == standard && cury == standard)
 					{
+						curz = curz->nexttime;
 						continue;
 					}
 					if (curx == standard)//yz면
@@ -349,18 +352,17 @@ public:
 						cury->ztail->nexttime = newdata;
 						newdata->prevtime = cury->ztail;
 						cury->ztail = newdata;
+						curz = curz->nexttime;
 						continue;
 					}
 					newdata = new Data;
 					strcpy_s(newdata->location, cury->location);
 					strcpy_s(newdata->product, curx->product);
 					strcpy_s(newdata->time, curz->time);
+					//taily연결해줘야함 --------------------------------------------------xz평명 만들어야함
 					curz->ytail->nextlocation = newdata;
 					newdata->prevlocation = curz->ytail;
 					curz->ytail = newdata;
-					cury->ztail->nexttime = newdata;
-					newdata->prevtime = cury->ztail;
-					cury->ztail = newdata;
 					//tailx 연결해줘야함
 					curyz->xtail->nextproduct = newdata;
 					newdata->prevproduct = curyz->xtail;
@@ -371,7 +373,7 @@ public:
 					curxy->ztail = newdata;
 					////////////////
 					curyz = curyz->nexttime;
-					curx = curx->nexttime;
+					curz = curz->nexttime;
 				}
 
 				curxy = curxy->nextlocation;

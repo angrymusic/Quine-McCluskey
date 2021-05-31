@@ -426,9 +426,9 @@ public:
 				char* ptr = strtok_s(temp, " ", &token);//첫 간격 자르기 (time or procduc or location)
 				strcpy_s(whatP, ptr);
 				ptr = strtok_s(NULL, " ", &token);
-				strcpy_s(whenT, ptr);
-				ptr = strtok_s(NULL, " ", &token);
 				strcpy_s(whereL, ptr);
+				ptr = strtok_s(NULL, " ", &token);
+				strcpy_s(whenT, ptr);
 				ptr = strtok_s(NULL, " ", &token);
 				strcpy_s(howM, ptr);
 				

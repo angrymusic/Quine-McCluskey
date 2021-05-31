@@ -233,6 +233,7 @@ public:
 	Data* curz = NULL;
 	Data* curyz = NULL;
 	Data* curxy = NULL;
+	Data* curxz = NULL;
 	void newcube(Root time, Root location, Root product)
 	{
 		//빈 큐브 만들기(0으로 초기화)
@@ -295,10 +296,10 @@ public:
 				strcpy_s(newdata->product, curx->product);
 				strcpy_s(newdata->time, time.root->pChild[0]->pChild[0]->name);
 				curx->ytail->nextlocation = newdata;
-				newdata->prevlocation = curx;
+				newdata->prevlocation = curx->ytail;
 				curx->ytail = newdata;
 				cury->xtail->nextproduct = newdata;
-				newdata->prevproduct = cury;
+				newdata->prevproduct = cury->xtail;
 				cury->xtail = newdata;
 
 				curx = curx->nextproduct;
@@ -322,48 +323,72 @@ public:
 				tailtime = newdata;
 			}
 		}
-
-		//cube 생성
-		curx = standard;
+		//xz평면 만들기
+		curx = standard->nextproduct;
 		while (curx != NULL)
 		{
-			cury = standard;
-			curxy = curx;
+			curz = standard->nexttime;
+			while (curz != NULL)
+			{
+				newdata = new Data;
+				strcpy_s(newdata->location, location.root->pChild[0]->pChild[0]->name);
+				strcpy_s(newdata->product, curx->product);
+				strcpy_s(newdata->time, curz->time);
+				curx->ztail->nexttime = newdata;
+				newdata->prevtime = curx->ztail;
+				curx->ztail = newdata;
+				curz->xtail->nextproduct = newdata;
+				newdata->prevproduct = curz->xtail;
+				curz->xtail = newdata;
+
+				curz = curz->nexttime;
+			}
+			curx = curx->nextproduct;
+		}
+		//yz평면 만들기
+		cury = standard->nextlocation;
+		while (cury != NULL)
+		{
+			curz = standard->nexttime;
+			while (curz != NULL)
+			{
+				newdata = new Data;
+				strcpy_s(newdata->location, cury->location);
+				strcpy_s(newdata->product, product.root->pChild[0]->pChild[0]->name);
+				strcpy_s(newdata->time, curz->time);
+				curz->ytail->nextlocation = newdata;
+				newdata->prevlocation = curz->ytail;
+				curz->ytail = newdata;
+				cury->ztail->nexttime = newdata;
+				newdata->prevtime = cury->ztail;
+				cury->ztail = newdata;
+
+				curz = curz->nexttime;
+			}
+			cury = cury->nextlocation;
+		}
+		//cube 생성
+		curx = standard->nextproduct;
+		while (curx != NULL)
+		{
+			cury = standard->nextlocation;
+			curxy = curx->nextlocation;
 			while (cury != NULL)
 			{
 				curz = standard->nexttime;
 				curyz = cury->nexttime;
+				curxz = curx->nexttime;
 				while (curz != NULL)
 				{
-					if (curx == standard && cury == standard)
-					{
-						curz = curz->nexttime;
-						continue;
-					}
-					if (curx == standard)//yz면
-					{
-						newdata = new Data;
-						strcpy_s(newdata->location, cury->location);
-						strcpy_s(newdata->product, curx->product);
-						strcpy_s(newdata->time, curz->time);
-						curz->ytail->nextlocation = newdata;
-						newdata->prevlocation = curz->ytail;
-						curz->ytail = newdata;
-						cury->ztail->nexttime = newdata;
-						newdata->prevtime = cury->ztail;
-						cury->ztail = newdata;
-						curz = curz->nexttime;
-						continue;
-					}
 					newdata = new Data;
 					strcpy_s(newdata->location, cury->location);
 					strcpy_s(newdata->product, curx->product);
 					strcpy_s(newdata->time, curz->time);
-					//taily연결해줘야함 --------------------------------------------------xz평명 만들어야함
-					curz->ytail->nextlocation = newdata;
-					newdata->prevlocation = curz->ytail;
-					curz->ytail = newdata;
-					//tailx 연결해줘야함
+					//taily 연결
+					curxz->ytail->nextlocation = newdata;
+					newdata->prevlocation = curxz->ytail;
+					curxz->ytail = newdata;
+					//tailx 연결
 					curyz->xtail->nextproduct = newdata;
 					newdata->prevproduct = curyz->xtail;
 					curyz->xtail = newdata;
@@ -372,6 +397,7 @@ public:
 					newdata->prevtime = curxy->ztail;
 					curxy->ztail = newdata;
 					////////////////
+					curxz = curxz->nexttime;
 					curyz = curyz->nexttime;
 					curz = curz->nexttime;
 				}
@@ -382,7 +408,7 @@ public:
 			curx = curx->nextproduct;
 		}
 
-
+		Data* finder = NULL;
 		//sales보고 채우기
 		ifstream salestxt;//읽을 파일 선언
 		salestxt.open("sales.txt");//파일 열기
@@ -390,12 +416,52 @@ public:
 		{
 			while (!salestxt.eof())//파일을 끝까지 읽기
 			{
+				char temp[100] = { '\0', };
+				char whatP[100] = { '\0', };
+				char whenT[100] = { '\0', };
+				char whereL[100] = { '\0', };
+				char howM[100] = { '\0', };
+				char* token;
+				salestxt.getline(temp, 100);//한줄씩 받기
+				char* ptr = strtok_s(temp, " ", &token);//첫 간격 자르기 (time or procduc or location)
+				strcpy_s(whatP, ptr);
+				ptr = strtok_s(NULL, " ", &token);
+				strcpy_s(whenT, ptr);
+				ptr = strtok_s(NULL, " ", &token);
+				strcpy_s(whereL, ptr);
+				ptr = strtok_s(NULL, " ", &token);
+				strcpy_s(howM, ptr);
 				
-
-
+				finder = standard;
+				while (finder != NULL)
+				{
+					if (strcmp(whatP, finder->product) == 0)
+					{
+						while (finder != NULL)
+						{
+							if (strcmp(whereL, finder->location) == 0)
+							{
+								while (finder != NULL)
+								{
+									if (strcmp(whenT, finder->time) == 0)
+									{
+										finder->value = atoi(howM);
+										break;
+									}
+									finder = finder->nexttime;
+								}
+								break;
+							}
+							finder = finder->nextlocation;
+						}
+						break;
+					}
+					finder = finder->nextproduct;
+				}
 			}
 		}
 		salestxt.close();
+		
 	}
 };
 int main()
